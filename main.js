@@ -54,15 +54,17 @@ const viewCar = () => {
 }
 
 // requiere backend
-const addItem = () => {
+const addItem = async() => {
     const descripcion = document.getElementById("descripcion").value;
     const precio = document.getElementById("precio").value;
     const stock = document.getElementById("stock").value;
+    const imagen = await uploadImage(document.getElementById("imagen").files[0]);
+    console.log(imagen);
     if (descripcion && precio > 0 && stock > 0) {
         const id = all_items.length + 1;
-        const ruta = create_article+"&id="+id+"&descripcion="+descripcion+"&precio="+precio+".00&stock="+stock+"&carrito=0"; 
+        const ruta = create_article+"&id="+id+"&descripcion="+descripcion+"&precio="+precio+".00&stock="+stock+"&carrito=0"+"&imagen="+imagen; 
         fetch(ruta, { method:'POST' })
-        .then(res => { showItems('Se ha agregado un nuevo item al comercio') })
+        .then((res) => { showItems('Se ha agregado un nuevo item al comercio') })
         .catch((error) => { console.log(error) });
     } else {
         alert('Asegurate de haber llenado correctamente los campos');
@@ -77,7 +79,7 @@ const addToCar = (id) => {
         const carro = parseInt(item.carrito)+wanted;
         const ruta = update_article+"&id="+id+"&stock="+total+"&carrito="+carro; 
         fetch(ruta, { method:'POST' })
-        .then(res => { showItems('Se ha actualizado el carrito de compras') })
+        .then((res) => { showItems('Se ha actualizado el carrito de compras') })
         .catch((error) => { console.log(error) });
     } else {
         alert('Solo se cuenta con ' + item.stock + ' unidades de este artículo');
@@ -87,7 +89,7 @@ const addToCar = (id) => {
 const deleteAll = () => {
     if (confirm('¿Estas seguro de vaciar todo tu carrito?')) {
         fetch(delete_article)
-        .then(res => { showItems('Se han eliminado todos los items del carrito') })
+        .then((res) => { showItems('Se han eliminado todos los items del carrito') })
         .catch((error) => { console.log(error) });
     }
 }
@@ -95,7 +97,7 @@ const deleteAll = () => {
 const deleteItem = (id) => {
     if (confirm('¿Estas seguro de eliminar este artículo?')) {
         fetch(delete_article+"&id="+id)
-        .then(res => { showItems('Se ha eliminado el item del carrito') })
+        .then((res) => { showItems('Se ha eliminado el item del carrito') })
         .catch((error) => { console.log(error) });
     }
 }
@@ -105,8 +107,8 @@ const showItems = (title='') => {
     const search = document.getElementById("search").value;
     if (search) ruta += '&descripcion='+search;
     fetch(ruta)
-    .then(response => response.json())
-    .then(items => {
+    .then((res) => res.json())
+    .then((items) => {
         var str = '';
         var element = document.getElementById("lista");
         element.innerHTML = str;
@@ -148,6 +150,23 @@ const showItems = (title='') => {
             bsAlert.show();
         }
     });
+}
+
+// subida de imagenes
+const uploadImage = async (file) => { 
+    var ruta = null;
+    const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/djqodky2l/image/upload';
+    const CLOUDINARY_UPLOAD_PRESET = 'cd8k0ihu';
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+    await fetch(CLOUDINARY_URL, { method: 'POST', body: formData })
+    .then(response => response.json())
+    .then((data) => { ruta = data.secure_url })
+    .catch((error) => console.log(error));
+    return ruta
 }
 
 // funcion inicial

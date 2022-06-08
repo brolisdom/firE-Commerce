@@ -164,7 +164,7 @@ const uploadImage = async (file) => {
 
     await fetch(CLOUDINARY_URL, { method: 'POST', body: formData })
     .then(response => response.json())
-    .then((data) => { ruta = data.secure_url })
+    .then((data) => { ruta = data.secure_url || '' })
     .catch((error) => console.log(error));
     return ruta
 }

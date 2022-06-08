@@ -15,7 +15,7 @@
     <nav class="navbar navbar-expand-md navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand mt-1" href="#">
-                <img src="/logo.png" width="30" class="pb-1">
+                <img src="/assets/logo.png" width="30" class="pb-1">
                 firE-Commerce
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -32,7 +32,7 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li>
-                                <a class="dropdown-item" onclick="showItems(items)">
+                                <a class="dropdown-item" onclick="showItems()">
                                     Compra de artículos
                                 </a>
                             </li>
@@ -48,8 +48,8 @@
                     </li>
                 </ul>
                 <form class="d-flex">
-                    <input class="form-control me-2" type="search" placeholder="Busqueda" aria-label="Search">
-                    <button class="btn btn-outline-success" type="submit">Buscar</button>
+                    <input class="form-control me-2" type="search" placeholder="Busqueda" id="search">
+                    <button class="btn btn-outline-success" type="submit" onclick="showItems()">Buscar</button>
                 </form>
             </div>
         </div>
@@ -74,7 +74,7 @@
         <!-- tab 1 -->
         <div class="container mt-2 tab-pane fade" id="compra" role="tabpanel" aria-labelledby="compra-tab">
             Artículos disponibles
-            <button type="button" class="btn btn-link" onclick="viewCar(carrito)">
+            <button type="button" class="btn btn-link" onclick="viewCar()">
                 <i class="bi bi-cart"></i>
                 Ver carrito
             </button>
@@ -113,7 +113,7 @@
         <div class="container mt-2 tab-pane fade" id="carrito" role="tabpanel"
             aria-labelledby="carrito-tab">
             Carrito de compras
-            <button type="button" class="btn btn-link" onclick="showItems(items)">
+            <button type="button" class="btn btn-link" onclick="showItems()">
                 <i class="bi bi-arrow-bar-left"></i>
                 Regresar
             </button>
@@ -129,189 +129,14 @@
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
             <div class="toast-body">
-                Se ha agregado un nuevo artículo
+                <span id="title"></span>
             </div>
         </div>
     </div>
 </body>
 
-<!-- bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-    crossorigin="anonymous"></script>
-
-<!-- variables -->
-<script>
-    const carrito = [null, 5, 10];
-    const imagen = "./test.jpg";
-    const item1 = {
-        "id": 1,
-        "descripcion": "Descripcion 1",
-        "imagen": imagen,
-        "precio": 100.00,
-        "stock": 10
-    };
-    const item2 = {
-        "id": 2,
-        "descripcion": "Descripcion 2",
-        "imagen": imagen,
-        "precio": 200.00,
-        "stock": 20
-    };
-    const items = [item1, item2];
-</script>
-
-<!-- funciones -->
-<script>
-    const addItem = () => {
-        const descripcion = document.getElementById("descripcion").value;
-        const precio = document.getElementById("precio").value;
-        const stock = document.getElementById("stock").value;
-        if (descripcion && precio > 0 && stock > 0) {
-            const id = items.length + 1;
-            var item = {"id":id, "descripcion":descripcion, "precio":precio, "stock":stock, "imagen":imagen}
-            const alert = document.querySelector('.toast');
-            const bsAlert = new bootstrap.Toast(alert);
-            items.push(item);
-            showItems(items);
-            bsAlert.show();
-        } else {
-            alert('Asegurate de haber llenado correctamente los campos');
-        }
-    }
-
-    const addOne = (id) => {
-        const items = document.getElementById(id);
-        var actual = parseInt(items.innerHTML);
-        items.innerHTML = actual + 1;
-    }
-
-    const addToCar = (id) => {
-        const stock = document.getElementById('stock-' + id);
-        const wanted = document.getElementById(id);
-        const n_wanted = parseInt(wanted.innerHTML);
-        const n_stock = parseInt(stock.innerHTML);
-        const total = n_stock - n_wanted;
-        if (total >= 0) {
-            if (carrito[id]) carrito[id] += n_wanted;
-            else carrito[id] = n_wanted;
-            var index = items.findIndex(item => item.id === id);
-            items[index].stock = total;
-            showItems(items);
-        } else {
-            alert('Solo se cuenta con ' + n_stock + ' unidades de este artículo');
-        }
-    }
-
-    const deleteAll = () => {
-        if (confirm('¿Estas seguro de vaciar todo tu carrito?')) {
-            carrito.forEach((cantidad, indice) => {
-                if (cantidad) {
-                    var index = items.findIndex(item => item.id === indice);
-                    items[index].stock += cantidad;
-                }
-            });
-            carrito.length = 0;
-            viewCar(carrito);
-        }
-    }
-
-    const deleteItem = (id) => {
-        if (confirm('¿Estas seguro de eliminar este artículo?')) {
-            var index = items.findIndex(item => item.id === id);
-            items[index].stock += carrito[id];
-            carrito[id] = null;
-            viewCar(carrito);
-        }
-    }
-
-    const viewCar = (carrito) => {
-        var str = '';
-        var element = document.getElementById("lista-carrito");
-        element.innerHTML = str;
-        var flag = false;
-        items.forEach(item => {
-            if (carrito[item.id]) {
-                flag = true;
-                str = `
-                    <div class="card m-2" style="width: 18rem;">
-                        <img src="${item.imagen}" class="img-fluid">
-                        <div class="card-body">
-                            <h5 class="card-title">${item.descripcion}</h5>
-                            <p class="card-text">Precio: ${item.precio}</p>
-                            <p class="card-text">Cantidad: ${carrito[item.id]}</p>
-                            <p class="card-text">Total a pagar: ${item.precio*carrito[item.id]}</p>
-                            <a class="btn btn-danger btn-sm" onclick="deleteItem(${item.id})">Eliminar</i></a>
-                        </div>
-                    </div>
-                `;
-                element.insertAdjacentHTML('beforeend', str);
-            }
-        });
-        if (flag) {
-            str = '<button class="btn btn-link" type="button" onclick="deleteAll()">Vaciar carrito</button>';
-            element.insertAdjacentHTML('beforeend', str);
-        } else {
-            str = 'Al parecer no hay ningún articulo en tu carrito';
-            element.insertAdjacentHTML('beforeend', str);
-        }
-        document.getElementById('carrito-tab').click();
-    }
-
-    const showItems = (items) => {
-        var str = '';
-        var element = document.getElementById("lista");
-        element.innerHTML = str;
-        items.forEach(item => {
-            if (item.stock > 0) var color = 'primary';
-            else var color = 'secondary';
-            str = `
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div class="d-flex">
-                        <img src="./test.jpg" height="50px">
-                        <div class="mx-3">
-                            ${item.descripcion}
-                            <br>
-                            Precio: ${item.precio}.00
-                        </div>
-                    </div>
-                    <span class="badge bg-${color} rounded-pill">
-                        Stock: <span id="stock-${item.id}">${item.stock}</span>
-                    </span>
-                    <div>
-                        <div class="btn-group mt-1">
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="subOne(${item.id})">-</button>
-                            <button type="button" class="btn btn-secondary btn-sm px-1" disabled id="${item.id}">1</button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="addOne(${item.id})">+</button>
-                        </div>
-                        <br>
-                        <button type="button" class="btn btn-link btn-sm" onclick="addToCar(${item.id})">Comprar</button>
-                    </div>
-                </li>
-            `;
-            element.insertAdjacentHTML('beforeend', str);
-        });
-        document.getElementById('compra-tab').click();
-    }
-
-    const subOne = (id) => {
-        const items = document.getElementById(id);
-        var actual = parseInt(items.innerHTML);
-        if (actual > 1) items.innerHTML = actual - 1;
-    }
-
-    const uploadItem = () => {
-        document.getElementById("descripcion").value = '';
-        document.getElementById("precio").value = '';
-        document.getElementById("stock").value = '';
-        document.getElementById('carga-tab').click();
-    }
-</script>
-
-<!-- main -->
-<script>
-    window.onload = (event) => {
-        showItems(items);
-    }
-</script>
+integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+crossorigin="anonymous"></script>
+<script src="main.js"></script>
 </html>
